@@ -1,0 +1,22 @@
+# Web Framework
+fastapi>=0.104.0
+uvicorn>=0.23.2
+
+# AWS Integration
+boto3>=1.28.57
+
+# Document Processing
+python-multipart>=0.0.6
+pydantic>=2.4.2
+pydantic-settings>=2.0.0
+pyPDF2>=3.0.1
+docx2txt>=0.8
+beautifulsoup4>=4.12.2
+requests>=2.31.0
+
+# Vector Storage & Embeddings
+sentence-transformers>=2.2.2
+opensearch-py>=2.2.0
+
+# Utilities
+python-dotenv>=1.0.0

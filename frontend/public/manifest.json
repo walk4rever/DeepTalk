@@ -1,0 +1,9 @@
+{
+  "short_name": "DeepTalk",
+  "name": "DeepTalk - Conversational AI with Knowledge Base",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
