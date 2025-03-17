@@ -1,0 +1,78 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for DeepTalk OpenSearch domain'
+
+Parameters:
+  DomainName:
+    Type: String
+    Default: deeptalk
+    Description: Name of the OpenSearch domain
+  
+  EngineVersion:
+    Type: String
+    Default: OpenSearch_2.9
+    Description: Version of OpenSearch to deploy
+  
+  InstanceType:
+    Type: String
+    Default: t3.small.search
+    Description: Instance type for OpenSearch nodes
+  
+  VolumeSize:
+    Type: Number
+    Default: 10
+    Description: Size of EBS volume in GB
+  
+  MasterUsername:
+    Type: String
+    Default: openadmin
+    Description: Master username for OpenSearch
+  
+  MasterPassword:
+    Type: String
+    NoEcho: true
+    Description: Master password for OpenSearch (min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char)
+
+Resources:
+  OpenSearchDomain:
+    Type: AWS::OpenSearchService::Domain
+    Properties:
+      DomainName: !Ref DomainName
+      EngineVersion: !Ref EngineVersion
+      ClusterConfig:
+        InstanceType: !Ref InstanceType
+        InstanceCount: 1
+        DedicatedMasterEnabled: false
+        ZoneAwarenessEnabled: false
+      EBSOptions:
+        EBSEnabled: true
+        VolumeType: gp3
+        VolumeSize: !Ref VolumeSize
+      EncryptionAtRestOptions:
+        Enabled: true
+      NodeToNodeEncryptionOptions:
+        Enabled: true
+      DomainEndpointOptions:
+        EnforceHTTPS: true
+      AdvancedSecurityOptions:
+        Enabled: true
+        InternalUserDatabaseEnabled: true
+        MasterUserOptions:
+          MasterUserName: !Ref MasterUsername
+          MasterUserPassword: !Ref MasterPassword
+      AccessPolicies:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: '*'
+            Action: 'es:*'
+            Resource: !Sub 'arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/${DomainName}/*'
+
+Outputs:
+  DomainEndpoint:
+    Description: The endpoint URL of the OpenSearch domain
+    Value: !GetAtt OpenSearchDomain.DomainEndpoint
+  
+  DomainArn:
+    Description: The ARN of the OpenSearch domain
+    Value: !GetAtt OpenSearchDomain.Arn

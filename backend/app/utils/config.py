@@ -17,11 +17,12 @@ class Settings(BaseSettings):
     BEDROCK_EMBEDDING_MODEL: str = "amazon.titan-embed-text-v1"
     
     # OpenSearch Configuration
-    OPENSEARCH_HOST: str = "localhost"
-    OPENSEARCH_PORT: int = 9200
-    OPENSEARCH_USE_SSL: bool = False
-    OPENSEARCH_USERNAME: str = ""
-    OPENSEARCH_PASSWORD: str = ""
+    OPENSEARCH_SERVICE_ENABLED: bool = True  # Set to True to use AWS OpenSearch Service
+    OPENSEARCH_HOST: str = "localhost"  # Will be overridden by domain endpoint from AWS
+    OPENSEARCH_PORT: int = 443  # Default HTTPS port for AWS OpenSearch Service
+    OPENSEARCH_USE_SSL: bool = True  # Always true for AWS OpenSearch Service
+    OPENSEARCH_USERNAME: str = ""  # Used only for local OpenSearch
+    OPENSEARCH_PASSWORD: str = ""  # Used only for local OpenSearch
     
     # Embedding Configuration
     EMBEDDING_PROVIDER: str = "local"  # "bedrock" or "local"

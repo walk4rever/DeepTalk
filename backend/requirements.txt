@@ -4,6 +4,7 @@ uvicorn>=0.23.2
 
 # AWS Integration
 boto3>=1.28.57
+requests-aws4auth>=1.2.0
 
 # Document Processing
 python-multipart>=0.0.6

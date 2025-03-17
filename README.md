@@ -8,7 +8,7 @@ DeepTalk consists of:
 
 - **Frontend**: React-based user interface for chat interactions and knowledge base management
 - **Backend**: Python-based API server that handles document processing, embedding generation, and LLM interactions
-- **Vector Store**: Storage for document embeddings to enable efficient semantic search
+- **Vector Store**: AWS OpenSearch Service for document embeddings to enable efficient semantic search
 - **AWS Bedrock Integration**: Leverages Amazon Bedrock for accessing state-of-the-art LLMs
 
 ## Installation
@@ -16,7 +16,24 @@ DeepTalk consists of:
 ### Prerequisites
 
 - Docker and Docker Compose
-- AWS account with Bedrock access (for LLM capabilities)
+- AWS account with:
+  - Bedrock access (for LLM capabilities)
+  - Permissions to create and manage OpenSearch Service domains
+
+### AWS OpenSearch Service Setup
+
+1. Deploy the OpenSearch domain using the provided CloudFormation template:
+   ```bash
+   aws cloudformation create-stack \
+     --stack-name deeptalk-opensearch \
+     --template-body file://opensearch-cfn.yaml \
+     --parameters ParameterKey=MasterPassword,ParameterValue=YourSecurePassword
+   ```
+
+2. After deployment completes, note the OpenSearch domain endpoint from the CloudFormation outputs:
+   ```bash
+   aws cloudformation describe-stacks --stack-name deeptalk-opensearch --query "Stacks[0].Outputs[?OutputKey=='DomainEndpoint'].OutputValue" --output text
+   ```
 
 ### Setup Instructions
 
@@ -26,8 +43,15 @@ DeepTalk consists of:
    cd DeepTalk
    ```
 
-2. Configure AWS credentials:
-   - Ensure your AWS credentials are properly configured with access to Bedrock services
+2. Configure environment variables:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edit the `.env` file with:
+   - Your AWS credentials
+   - The OpenSearch domain endpoint from the CloudFormation stack
+   - Other configuration options
 
 3. Start the application using Docker Compose:
    ```bash
@@ -38,11 +62,38 @@ DeepTalk consists of:
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:8000
 
-### Environment Variables
+## Features
 
-Create a `.env` file in the root directory with the following variables:
-```
-AWS_ACCESS_KEY_ID=your_access_key
-AWS_SECRET_ACCESS_KEY=your_secret_key
-AWS_REGION=your_aws_region
-```
+- **Document Upload**: Support for PDF, DOCX, and TXT files
+- **Web Content Import**: Extract and index content from web URLs
+- **Semantic Search**: Find relevant information using natural language queries
+- **Contextual Conversations**: Chat with AI that has access to your knowledge base
+- **Document Management**: Organize and manage your knowledge sources
+
+## Architecture
+
+- **Frontend**: React with Tailwind CSS for responsive UI
+- **Backend**: FastAPI (Python) for efficient API handling
+- **Vector Database**: AWS OpenSearch Service for semantic search capabilities
+- **LLM Provider**: Amazon Bedrock (Claude models)
+- **Embedding Models**: Local Sentence Transformers or Amazon Bedrock embedding models
+
+## Development
+
+### Backend Development
+
+The backend is built with FastAPI and provides endpoints for:
+- Document upload and processing
+- Conversation management
+- Vector search using AWS OpenSearch Service
+
+### Frontend Development
+
+The frontend is a React application with:
+- Document upload interface
+- Chat interface
+- Document management
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

@@ -1,6 +1,8 @@
 from typing import List, Dict, Any
-from opensearchpy import OpenSearch
+from opensearchpy import OpenSearch, RequestsHttpConnection
 import json
+import boto3
+from requests_aws4auth import AWS4Auth
 from app.models.knowledge_base import Document, TextChunk
 from app.utils.config import get_settings
 
@@ -8,12 +10,34 @@ settings = get_settings()
 
 async def get_opensearch_client():
     """Get OpenSearch client"""
-    return OpenSearch(
-        hosts=[{"host": settings.OPENSEARCH_HOST, "port": settings.OPENSEARCH_PORT}],
-        use_ssl=settings.OPENSEARCH_USE_SSL,
-        verify_certs=False,  # Not for production
-        http_auth=(settings.OPENSEARCH_USERNAME, settings.OPENSEARCH_PASSWORD) if settings.OPENSEARCH_USERNAME else None,
-    )
+    # For AWS OpenSearch Service
+    if settings.OPENSEARCH_SERVICE_ENABLED:
+        # Create AWS credentials for request signing
+        credentials = boto3.Session().get_credentials()
+        awsauth = AWS4Auth(
+            settings.AWS_ACCESS_KEY_ID,
+            settings.AWS_SECRET_ACCESS_KEY,
+            settings.AWS_REGION,
+            'es',
+            session_token=credentials.token if hasattr(credentials, 'token') else None
+        )
+        
+        # Connect to AWS OpenSearch Service
+        return OpenSearch(
+            hosts=[{'host': settings.OPENSEARCH_HOST, 'port': settings.OPENSEARCH_PORT}],
+            http_auth=awsauth,
+            use_ssl=True,
+            verify_certs=True,
+            connection_class=RequestsHttpConnection
+        )
+    else:
+        # Connect to local OpenSearch (for development/testing)
+        return OpenSearch(
+            hosts=[{"host": settings.OPENSEARCH_HOST, "port": settings.OPENSEARCH_PORT}],
+            use_ssl=settings.OPENSEARCH_USE_SSL,
+            verify_certs=False,  # Not for production
+            http_auth=(settings.OPENSEARCH_USERNAME, settings.OPENSEARCH_PASSWORD) if settings.OPENSEARCH_USERNAME else None,
+        )
 
 async def create_index_if_not_exists(index_name: str):
     """Create vector index if it doesn't exist"""
