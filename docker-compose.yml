@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   frontend:
     build:
@@ -30,9 +28,10 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_REGION=${AWS_REGION:-us-east-1}
-      - OPENSEARCH_HOST=${OPENSEARCH_HOST:-localhost}
-      - OPENSEARCH_PORT=${OPENSEARCH_PORT:-9200}
-      - OPENSEARCH_USE_SSL=${OPENSEARCH_USE_SSL:-false}
+      - BEDROCK_MODEL_ID=${BEDROCK_MODEL_ID:-anthropic.claude-3-sonnet-20240229-v1:0}
+      - OPENSEARCH_HOST=opensearch
+      - OPENSEARCH_PORT=9200
+      - OPENSEARCH_USE_SSL=false
       - OPENSEARCH_USERNAME=${OPENSEARCH_USERNAME}
       - OPENSEARCH_PASSWORD=${OPENSEARCH_PASSWORD}
       - UPLOAD_DIR=/data/uploads
@@ -42,7 +41,7 @@ services:
     environment:
       - discovery.type=single-node
       - bootstrap.memory_lock=true  # Disable memory swapping
-      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"  # Limit heap size
+      - "OPENSEARCH_JAVA_OPTS=-Xms256m -Xmx256m"  # Reduced heap size
       - "DISABLE_INSTALL_DEMO_CONFIG=true"
       - "DISABLE_SECURITY_PLUGIN=true"  # Disable security for development
     ulimits:

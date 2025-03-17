@@ -21,12 +21,16 @@ app.include_router(knowledge_base.router, prefix="/api/kb", tags=["Knowledge Bas
 app.include_router(conversation.router, prefix="/api/conversation", tags=["Conversation"])
 
 # Mount static file directory for uploaded files preview
-os.makedirs("../data/uploads", exist_ok=True)
-app.mount("/files", StaticFiles(directory="../data/uploads"), name="files")
+os.makedirs("/data/uploads", exist_ok=True)
+app.mount("/files", StaticFiles(directory="/data/uploads"), name="files")
 
 @app.get("/")
 async def root():
     return {"message": "Welcome to DeepTalk API"}
+
+@app.get("/api/health")
+async def health_check():
+    return {"status": "ok", "service": "DeepTalk API"}
 
 if __name__ == "__main__":
     import uvicorn
